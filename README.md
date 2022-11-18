@@ -1,35 +1,27 @@
 <img align="left" width="100px" height="100px" src="https://user-images.githubusercontent.com/12256205/162470824-d34c5fad-555e-498b-9ac9-ba86b6eb057a.png">
 
-# SESO Coding Challenge: Log Sorting
+# SESO Coding Challenge: Log Sorting [SUBMISSION]
 
 <br>
 
-## Instructions
+## Tooling Used
 
-We have a number of [**log sources**](https://github.com/sesolabor/coding-challenge/blob/master/lib/log-source.js).  Each log source contains N log entries.  Each entry is a javascript object with a timestamp and message.  We don't know the number of log entries each source contains - however - we do know that the entries within each source are sorted 🕒 **chronologically** 🕒.
+- Node version: 19.1.0
+- NPM version: 8.19.3
 
-### The Objectives:
-1. ***Drain all of the log sources*** for both the synchronous and asynchronous solutions.
-    - [Synchronous](https://github.com/sesolabor/coding-challenge/blob/31313e303c53cebb96fa02f3aab473dd011e1d16/lib/log-source.js#L37)
-    - [Asynchronous](https://github.com/sesolabor/coding-challenge/blob/31313e303c53cebb96fa02f3aab473dd011e1d16/lib/log-source.js#L45)
-1. Print all of the entries, across all of the sources, in chronological order.
-    - We don't need to store the log entries, just print them to stdout.
-1. Do this *efficiently*. There are time and space complexities afoot!
+## Machines Used for Testing
 
-We expect candidates to spend 1-3 hours on this exercise.
+- Windows PC
+  - i7, 4 cores
+  - 16GB memory
+- MacBook Pro
+  - i7, 6 cores
+  - 32GB memory
 
-**We want to see you flex your CS muscles!!! Use the appropriate data structures to satisfy the time and space complexities inherent to the problem!!!**
+# Sync Challenge Solution
 
-## Pointers & Callouts
+I used a min priority queue (implemented via a heap) based on some research. A min heap works nicely as we don't need to worry about sorting it - just inserting into it in order. At any given time we only need to pop off the next element in the heap, as we're inserting the next element from our K sorted arrays, so the next element in the heap is going to be guaranteed to be the earliest log across all K sources.
 
-* We don't know how many logs each source contains.  A source could contain millions of entries and be exabytes in size! In other words, reading the entirety of a log source into memory won't work well.
-* Log sources could contain logs from last year, from yesterday, even from 100 years ago. We won't know the timeframe of a log source until we start looking.
-* Consider what would happen when asked to merge 1 million log sources.  Where might bottlenecks arise?
+I used a library rather than implementing my own, since the challenge specifies _using_ an appropriate data structure, not _implementing_ one. I did briefly attempt using an implementation from stackoverflow instead of importing from the library to see if that increased performance at all,and it didn't increase it noticeably.
 
-There are two parts of the challenge which you'll see when diving into things.  You can get started by running `npm start`.
-
-## Submitting
-
-Create a GitHub repo and email your point of contact the link.
-
-If - for whatever reason - you cannot create a GitHub repo for this challenge, it is also acceptable to 'zip' the directory and provide your submission as an email attachment.
+On my PC I get around 3-5k logs/s with 100 sources. The results deviate a decent amount, which is probably because I have a ton of other stuff running on the machine while running the solution. The solution runs considerably faster on my MacBook, where I get 20-25k logs/s.
