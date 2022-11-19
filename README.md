@@ -76,3 +76,4 @@ Tuning variables used:
 ## Possible Future Improvements
 
 - I have a feeling using worker threads or at least streams to balance reads and writes would lead to a better throughput without having to do so much manual tuning of the algorithm, however I didn't think I could design a better solution with either of these methods in the time frame given, so I stuck with my loop-based solution.
+- I used some array operations inside the main loop which are O(K), causing the complexity of this algorithm to be higher than the sync solution. I think there'd be a way to avoid those operations if I spent some more time on this, but I'm pretty happy with my solution for a couple hours' work.

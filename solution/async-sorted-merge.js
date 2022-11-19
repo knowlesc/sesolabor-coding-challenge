@@ -42,15 +42,18 @@ async function queueLogFromSource(source, priorityQueue, promiseQueue) {
   source.loading = true;
   const promise = source.popAsync().then((log) => {
     if (log) {
+      // O(log K)
       priorityQueue.push({ log, source });
       source.bufferCount++;
     }
     source.loading = false;
   });
 
+  // O(1)
   promiseQueue.push(promise);
 }
 
+// O(K)
 function addNextLogToQueue(logSources, priorityQueue, promiseQueue) {
   const source = findNextLogSourceToQueue(logSources);
 
@@ -60,10 +63,12 @@ function addNextLogToQueue(logSources, priorityQueue, promiseQueue) {
   }
 }
 
+// O(K)
 function allSourcesHaveBeenRead(logSources) {
   return logSources.every(({ bufferCount }) => bufferCount > 0);
 }
 
+// O(log K)
 function printNextLogFromQueue(priorityQueue, printer) {
   const { source, log } = priorityQueue.pop();
   printer.print(log);
@@ -154,6 +159,8 @@ module.exports = (logSources, printer) => {
    * Loading more entries into priority queue helps avoid bottlenecks.
    * I've found a multiplier of 10 is great, and going higher doesn't help.
    * Going lower leads to a significant slowdown (like up to 20x slower).
+   *
+   * Keeping the multiplier as a constant times the sources length keeps push/pop at O(log K)
    */
   const MAX_PRIORITY_QUEUE_SIZE = logSources.length * 10;
 
@@ -171,6 +178,11 @@ module.exports = (logSources, printer) => {
   let awaitCounter = 0;
 
   return new Promise(async (resolve, reject) => {
+    /**
+     * I think this is O(KN) for outer loop, O(K) inside because of the array operations,
+     * so O(K^2 * N) overall... more log sources will cause more complexity
+     * I think it could possibly be done without the extra K if we avoid the array filter/foreach
+     */
     while (continueLoop(logSources, priorityQueue)) {
       const fullPriorityQueue = priorityQueueIsFull(
         priorityQueue,
@@ -192,6 +204,7 @@ module.exports = (logSources, printer) => {
         promiseQueue.length > 0 &&
         (fullPriorityQueue ||
           fullPromiseQueue ||
+          // This is O(K)
           allSourcesAreLoading(logSources))
       ) {
         const timerp1 = performance.now();
@@ -204,11 +217,13 @@ module.exports = (logSources, printer) => {
       const timer3 = performance.now();
 
       // If we've read from all sources, we know we have the next log in the priority queue
+      // This is also O(K)
       if (allSourcesHaveBeenRead(logSources)) {
         printNextLogFromQueue(priorityQueue, printer);
       }
       const timer4 = performance.now();
 
+      // This is also O(K)
       logSources = logSources.filter(({ drained }) => !drained);
 
       totalTimes.addingLogToQueue += timer2 - timer1;
