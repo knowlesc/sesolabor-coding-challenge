@@ -18,7 +18,7 @@ module.exports = (logSources, printer) => {
   // O(KN) for the outer loop, so O(KN * log K) total
   while (!pq.isEmpty()) {
     // pop the earliest log from the queue
-    // O(1) to get the root
+    // O(log K)
     const { source, log } = pq.pop();
 
     printer.print(log);
